@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcelona Art Factories - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1a1a1a;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 60px 20px 40px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 300;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: rgba(255,255,255,0.9);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 20px 30px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 300;
+            display: block;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.9);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .controls {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            transition: border-color 0.3s;
+            font-weight: 300;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-bar::placeholder {
+            color: #999;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .factory-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .factory-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 30px;
+        }
+
+        .factory-name {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .factory-type {
+            display: inline-block;
+            padding: 5px 14px;
+            background: #667eea;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 500;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .factory-location {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            font-weight: 300;
+        }
+
+        .factory-year {
+            color: #999;
+            font-size: 0.85em;
+            font-weight: 300;
+        }
+
+        .factory-description {
+            color: #666;
+            line-height: 1.7;
+            margin-top: 15px;
+            font-weight: 300;
+            font-size: 0.95em;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+            color: #667eea;
+            font-weight: 300;
+        }
+
+        .close-btn:hover {
+            background: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 50px;
+        }
+
+        .modal-title {
+            font-size: 2.5em;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .meta-item {
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 300;
+        }
+
+        .meta-label {
+            text-transform: uppercase;
+            font-size: 0.75em;
+            letter-spacing: 1px;
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .modal-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 500;
+            color: #667eea;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-content {
+            color: #666;
+            line-height: 1.8;
+            font-size: 1em;
+            font-weight: 300;
+        }
+
+        .link-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Color variations for cards - colorful gradients */
+        .factory-card:nth-child(1) .card-image { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .factory-card:nth-child(2) .card-image { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .factory-card:nth-child(3) .card-image { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .factory-card:nth-child(4) .card-image { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .factory-card:nth-child(5) .card-image { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .factory-card:nth-child(6) .card-image { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .factory-card:nth-child(7) .card-image { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        .factory-card:nth-child(8) .card-image { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+        .factory-card:nth-child(9) .card-image { background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%); }
+        .factory-card:nth-child(10) .card-image { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .factory-card:nth-child(11) .card-image { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.95);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: inline-block;
+            border-radius: 20px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-link:hover {
+            background: white;
+            border-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Citations Page */
+        .citations-page {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .citations-page.active {
+            display: block;
+        }
+
+        .citations-header {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .citations-title {
+            font-size: 2.5em;
+            font-weight: 400;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            color: #667eea;
+        }
+
+        .citations-subtitle {
+            color: #666;
+            font-weight: 300;
+        }
+
+        .citation-item {
+            margin-bottom: 30px;
+            padding-left: 40px;
+            text-indent: -40px;
+            color: #666;
+            line-height: 1.8;
+            font-size: 0.95em;
+            font-weight: 300;
+        }
+
+        .citation-item a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            transition: border-color 0.3s;
+        }
+
+        .citation-item a:hover {
+            border-bottom-color: #667eea;
+        }
+
+        .back-btn {
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* History/Timeline Page */
+        .history-page {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .history-page.active {
+            display: block;
+        }
+
+        .history-header {
+            margin-bottom: 60px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .history-title {
+            font-size: 2.5em;
+            font-weight: 400;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            color: #667eea;
+        }
+
+        .history-subtitle {
+            color: #666;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -36px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .timeline-year {
+            font-size: 1.8em;
+            font-weight: 500;
+            color: #667eea;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .timeline-title {
+            font-size: 1.3em;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .timeline-content {
+            color: #666;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .timeline-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-top: 10px;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .grid { grid-template-columns: 1fr; }
+            .modal-body { padding: 30px; }
+            .citations-page { padding: 30px; }
+            .history-page { padding: 30px; }
+            nav { 
+                position: static; 
+                margin-bottom: 20px; 
+                text-align: center;
+                flex-direction: column;
+                align-items: center;
+            }
+            .timeline {
+                padding-left: 35px;
+            }
+            .timeline::before {
+                left: 15px;
+            }
+            .timeline-dot {
+                left: -31px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" class="nav-link" id="overviewLink">Overview</a>
+        <a href="#" class="nav-link" id="citationsLink">Citations</a>
+    </nav>
+
+    <div class="container" id="mainContent">
+        <header>
+            <h1>Barcelona Art Factories</h1>
+            <p class="subtitle">Fàbriques de Creació - Where Industrial Spaces Meet Creative Innovation</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">11</span>
+                    <span class="stat-label">Factories</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">30K</span>
+                    <span class="stat-label">Square Meters</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">817</span>
+                    <span class="stat-label">Projects (2024)</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <input type="text" class="search-bar" placeholder="Search factories by name, neighborhood, or art form...">
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All Factories</button>
+                <button class="filter-btn" data-filter="visual">Visual Arts</button>
+                <button class="filter-btn" data-filter="performing">Performing Arts</button>
+                <button class="filter-btn" data-filter="dance">Dance</button>
+                <button class="filter-btn" data-filter="circus">Circus</button>
+                <button class="filter-btn" data-filter="multi">Multidisciplinary</button>
+            </div>
+        </div>
+
+        <div class="grid" id="factoriesGrid">
+            <!-- Factory Card 1 -->
+            <div class="factory-card" data-type="circus" data-id="1">
+                <div class="card-image"><img src="Cenral del Circ.jpg" alt="La Central del Circ"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">La Central del Circ</h3>
+                    <span class="factory-type">Circus Arts</span>
+                    <div class="factory-location">Sant Marti</div>
+                    <div class="factory-year">Opened: 2008</div>
+                    <p class="factory-description">This space offers circus professionals a place to safely practice their craft. It includes rehearsal rooms, a multi-purpose room, a materials workshop, performance space, meeting space, and more.  </p>
+                </div>
+            </div>
+
+            <!-- Factory Card 2 -->
+            <div class="factory-card" data-type="visual" data-id="2">
+                <div class="card-image"><img src="La Escocesa.jpg" alt="La Escocesa"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">La Escocesa</h3>
+                    <span class="factory-type">Visual Arts</span>
+                    <div class="factory-location">Sant Martí</div>
+                    <div class="factory-year">Opened: 2008</div>
+                    <p class="factory-description">This space welcomes visual artists, at various stages of production, to work through their creative process. It emphasizes creative freedom and repurposing analogue technology. It includes visual arts workshop and exhbition rooms, materials workshops, meeting spaces, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 3 -->
+            <div class="factory-card" data-type="multi" data-id="3">
+                <div class="card-image"><img src="Graner.jpg" alt="Graner"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Graner</h3>
+                    <span class="factory-type">Performing Arts & Dance</span>
+                    <div class="factory-location">Sants-Montjuïc</div>
+                    <div class="factory-year">Opened: 2004</div>
+                    <p class="factory-description">Graner is an old factory complex that hosts body and movement-based creation. It is primarily used for performing arts and dance. It allows for a space for artists to rehearse, train, and perform collaboratively and flexibly.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 4 -->
+            <div class="factory-card" data-type="multi" data-id="4">
+                <div class="card-image"><img src="Fabra I Coats.jpg" alt="Fabra i Coats: Fàbrica de Creació"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Fabra i Coats: Fàbrica de Creació</h3>
+                    <span class="factory-type">Multidisciplinary</span>
+                    <div class="factory-location">Sant Andreu</div>
+                    <div class="factory-year">Opened: 2008</div>
+                    <p class="factory-description">This space is used for a large variety of creative work, from performing arts to music to visual arts. The goal of the facility is to create work spaces for artists of various disciplines, as well as providing training and support/visibility for artists. This space includes rehearsal rooms, workshop rooms, a performance room, coworking spaces, meeting spaces, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 5 -->
+            <div class="factory-card" data-type="multi" data-id="5">
+                <div class="card-image"><img src="Hangar.jpg" alt="Hangar"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Hangar</h3>
+                    <span class="factory-type">Visual & Multimedia Art</span>
+                    <div class="factory-location">Sant Martí</div>
+                    <div class="factory-year">Opened: 1997</div>
+                    <p class="factory-description">This space is a center for artistic creation and experimentation. It is open to artists of all different areas of the visual and multimedia arts, and focuses on providing artists with easier access to resources, spaces to work, and knowledge. It includes rehearsal rooms, a film set, material workshops, a classroom, workshop rooms, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 6 -->
+            <div class="factory-card" data-type="performing" data-id="6">
+                <div class="card-image"><img src="Tantarantana.jpg" alt="Tantarantana"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Tantarantana</h3>
+                    <span class="factory-type">Performing Arts</span>
+                    <div class="factory-location">El Raval</div>
+                    <div class="factory-year">Opened: 1996</div>
+                    <p class="factory-description">Tantarantana is a performing arts center for theatrical creation and performance. Its purpose is not just to be a performance space, but also allow for the creation of new staged works. This space includes rehearsal rooms, exhibition rooms, meeting space, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 7 -->
+            <div class="factory-card" data-type="circus" data-id="7">
+                <div class="card-image"><img src="Ateneu 9B.jpeg" alt="Ateneu 9B"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Ateneu 9B</h3>
+                    <span class="factory-type">Circus</span>
+                    <div class="factory-location">El Raval</div>
+                    <div class="factory-year">Opened: 1996</div>
+                    <p class="factory-description">This space is a community-managed cultural center that offers circus training and performance, alongside other performing arts and community activities. It primarily serves artists working in the circus realm, encouraging community projects and collaboration. This space includes rehearsal rooms, vertical dance wall, training rooms, meeting spaces, workshops, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 8 -->
+            <div class="factory-card" data-type="performing" data-id="8">
+                <div class="card-image"><img src="Sala Beckett.jpg" alt="Sala Beckett"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Sala Beckett</h3>
+                    <span class="factory-type">Performing Arts</span>
+                    <div class="factory-location">Sant Martí</div>
+                    <div class="factory-year">Opened: 1989</div>
+                    <p class="factory-description">Sala Beckett is a performing arts center dedicated to theatrical creation and experimentation. It allows for playwrights, actors, and other creative professionals to meet and develop new theatrical works. This space includes rehearsal rooms, performance rooms, meeting spaces, coworking spaces, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 9 -->
+            <div class="factory-card" data-type="performing" data-id="9">
+                <div class="card-image"><img src="Nau Ivanow.jpg" alt="Nau Ivanow"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">Nau Ivanow</h3>
+                    <span class="factory-type">Performing Arts</span>
+                    <div class="factory-location">Sant Andreu</div>
+                    <div class="factory-year">Opened: 2010</div>
+                    <p class="factory-description">Nau Ivanow is a performing arts center that focuses on theatrical creation, residencies, and supporting artists through the development process. It promotes collaboration and the exchange of ideas, providing rehearsal and workshop space for theatrical companies. This space includes rehearsal rooms, a performance room, coworking space, meeting space, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 10 -->
+            <div class="factory-card" data-type="multi" data-id="10">
+                <div class="card-image"><img src="La Brossa.jpg" alt="La Brossa - Centre de les Arts Lliures"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">La Brossa - Centre de les Arts Lliures</h3>
+                    <span class="factory-type">Visual Arts & Performing Arts</span>
+                    <div class="factory-location">Ciutat Vella</div>
+                    <div class="factory-year">Opened: 2011</div>
+                    <p class="factory-description">This space is a center for visual and performing arts, focusing on the crossover between artistic disciplines. This space highlights the work of the poet Joan Brossa, as well as paratheatrical performing arts. The space includes rehearsal rooms, performancce rooms, coworking spaces, meeting space, and more.</p>
+                </div>
+            </div>
+
+            <!-- Factory Card 11 -->
+            <div class="factory-card" data-type="dance" data-id="11">
+                <div class="card-image"><img src="La Caldera.jpg" alt="La Caldera"></div>
+                <div class="card-content">
+                    <h3 class="factory-name">La Caldera</h3>
+                    <span class="factory-type">Dance</span>
+                    <div class="factory-location">Les Corts</div>
+                    <div class="factory-year">Opened: 2015</div>
+                    <p class="factory-description">La Caldera is a center for artistic creation focused on dance and body movement. It focuses on supporting the creative process and providing a space for dialogue and collaboration. This space includes rehearsal rooms, a performance room, storage space, coworking space, a bar space, and more.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Citations Page -->
+    <div class="citations-page" id="citationsPage">
+        <button class="back-btn" id="backBtn">← Back to Factories</button>
+        
+        <div class="citations-header">
+            <h2 class="citations-title">Sources & Citations</h2>
+            <p class="citations-subtitle">Research materials and references used in this guide</p>
+        </div>
+
+        <div class="citation-item">
+            [1] La Caldera. La Caldera. <a href="https://www.lacaldera.info/en/lacaldera" target="_blank">https://www.lacaldera.info/en/lacaldera</a>
+        </div>
+
+        <div class="citation-item">
+            [2] Fundació Joan Brossa. Fundació Joan Brossa. <a href="https://fundaciojoanbrossa.cat/" target="_blank">https://fundaciojoanbrossa.cat/</a>
+        </div>
+
+        <div class="citation-item">
+            [3] Nau Ivanow. Nau Ivanow. <a href="https://nauivanow.com/" target="_blank">https://nauivanow.com/</a>
+        </div>
+
+        <div class="citation-item">
+            [4] Sala Beckett. Sala Beckett – Barcelona. <a href="https://www.salabeckett.cat/" target="_blank">https://www.salabeckett.cat/</a>
+        </div>
+
+        <div class="citation-item">
+            [5] Ateneu 9 Barris. Ateneu 9 Barris. <a href="https://ateneu9b.net/ca" target="_blank">https://ateneu9b.net/ca</a>
+        </div>
+
+        <div class="citation-item">
+            [6] Tantarantana. Tantarantana. <a href="https://tantarantana.com/" target="_blank">https://tantarantana.com/</a>
+        </div>
+
+        <div class="citation-item">
+            [7] Hangar. Hangar – Centre de Producció i Recerca d'Arts Visuals. <a href="https://hangar.org/en/" target="_blank">https://hangar.org/en/</a>
+        </div>
+
+        <div class="citation-item">
+            [8] Ajuntament de Barcelona. Fabra i Coats – Fàbrica de Creació. <a href="https://www.barcelona.cat/fabraicoats/ca" target="_blank">https://www.barcelona.cat/fabraicoats/ca</a>
+        </div>
+
+        <div class="citation-item">
+            [9] Graner. Graner – Centre de Creació. <a href="https://granerbcn.cat/" target="_blank">https://granerbcn.cat/</a>
+        </div>
+
+        <div class="citation-item">
+            [10] La Escocesa. La Escocesa – Centre d'Art Contemporani. <a href="https://www.laescocesa.org/en" target="_blank">https://www.laescocesa.org/en</a>
+        </div>
+
+        <div class="citation-item">
+            [11] La Central del Circ. La Central del Circ. <a href="https://lacentraldelcirc.cat/" target="_blank">https://lacentraldelcirc.cat/</a>
+        </div>
+
+        <div class="citation-item">
+            [12] Ajuntament de Barcelona. Fàbrica → Fàbrica (Fabriques de Creació). <a href="https://ajuntament.barcelona.cat/fabriquescreacio/en/fabriques/fabrica-a-fabrica" target="_blank">https://ajuntament.barcelona.cat/fabriquescreacio/en/fabriques/fabrica-a-fabrica</a>
+        </div>
+
+        <div class="citation-item">
+            [13] Ajuntament de Barcelona. "Backing for art factories: more funding, presence and local roots." <em>Barcelona.cat</em>. <a href="https://www.barcelona.cat/internationalwelcome/en/news/backing-for-art-factories-more-funding-presence-and-local-roots-1571140" target="_blank">https://www.barcelona.cat/internationalwelcome/en/news/backing-for-art-factories-more-funding-presence-and-local-roots-1571140</a>
+        </div>
+
+        <div class="citation-item">
+            [14] Barcelona Consell de Cultura. Beques Barcelona Crea. <a href="https://www.barcelona.cat/consellcultura/en/scopes/beques-barcelona-crea/" target="_blank">https://www.barcelona.cat/consellcultura/en/scopes/beques-barcelona-crea/</a>
+        </div>
+
+        <div class="citation-item">
+            [15] Ajuntament de Barcelona. Call for applications: 2025 Barcelona Crea Grants. <a href="https://ajuntament.barcelona.cat/en/administrative-information/grants-and-subsidies/call-applications-2025-barcelona-crea-grants" target="_blank">https://ajuntament.barcelona.cat/en/administrative-information/grants-and-subsidies/call-applications-2025-barcelona-crea-grants</a>
+        </div>
+    </div>
+
+    <!-- Overview Page -->
+    <div class="overview-page" id="overviewPage" style="display:none; max-width: 1000px; margin: 0 auto; background: white; padding: 60px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+        <button class="back-btn" id="backBtnOverview">← Back to Factories</button>
+        <div class="overview-header" style="margin-bottom: 50px; padding-bottom: 30px; border-bottom: 2px solid #f0f0f0;">
+            <h2 class="overview-title" style="font-size: 2.5em; font-weight: 400; margin-bottom: 15px; letter-spacing: -1px; color: #667eea;">Background & Funding</h2>
+        </div>
+        <div class="overview-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; color: #666; line-height: 1.8; font-size: 1em; font-weight: 300;">
+            
+            <div>
+                <h3 style="color: #667eea; font-size: 1.3em; font-weight: 500; margin-bottom: 20px;">What Are the Art Factories?</h3>
+                <p style="margin-bottom: 20px;">Each facility provides resources and space for artists to work. Currently, the network is made up of 11 Art Factories across Barcelona. The buildings are owned publicly, but they function highly autonomously. Notably, however, Fabra i Coats is run directly by Institut de Cultura de Barcelona. Otherwise, all the Art Factories are run by outside entities within the Barcelona arts industry.</p>
+            </div>
+
+            <div>
+                <h3 style="color: #667eea; font-size: 1.3em; font-weight: 500; margin-bottom: 20px;">Historical Development</h3>
+                <p style="margin-bottom: 20px;">Until the end of the 20th century, private associations and foundations primarily funded cultural and artistic activity in Barcelona. However, after public support for more public service, they began to collaborate with other institutions, branching out and creating cultural and arts centers.</p>
+                <p style="margin-bottom: 20px;">By the end of the 90s, arts centers were facing a lack of resources and space. At this time, they realized that historic factory buildings, often sitting empty, were a great solution to the space issue.</p>
+            </div>
+
+            <div>
+                <h3 style="color: #667eea; font-size: 1.3em; font-weight: 500; margin-bottom: 20px;">Creation & Growth</h3>
+                <p style="margin-bottom: 20px;">In 2007, the Barcelona City Council began the first public measure for the Art Factories. They incorporated already transformed industrial spaces and newly acquired spaces to form the network of Arts Factories today.</p>
+            </div>
+
+            <div>
+                <h3 style="color: #667eea; font-size: 1.3em; font-weight: 500; margin-bottom: 20px;">Current Funding</h3>
+                <p style="margin-bottom: 20px;">As of 2025, the Barcelona City Council is approving more funding for the Art Factories. Up to 60% of the budget of each factory will be funded by the city. The overall annual investment from the city is three million euros and one million in infrastructure for 2026. The council is working to increase the international and city-wide presence of the Art Factories through relationships with art factories around the world and participation in the city's cultural events.</p>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+                <h3 style="color: #667eea; font-size: 1.3em; font-weight: 500; margin-bottom: 20px;">Barcelona Crea Grants</h3>
+                <p style="margin-bottom: 20px;">The programs are supplemented by Barcelona Crea grants, which were created in 2020, with the intention of supporting and strengthening the city's cultural, educational, and scientific progress. They support artistic creation, with an emphasis on pre-production. In 2025, a total of 124 grants were given, each for 6,000 euros.</p>
+                <p>For more details, visit the official <a href="https://ajuntament.barcelona.cat/fabriquescreacio/en/fabriques/fabrica-a-fabrica" target="_blank" style="color: #667eea; text-decoration: underline;">Barcelona Art Factories website</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="factoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle">Factory Name</h2>
+                <div class="modal-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Location</span>
+                        <span id="modalLocation">Neighborhood</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Type</span>
+                        <span id="modalType">Art Type</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Opened</span>
+                        <span id="modalYear">Year</span>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">About</h3>
+                    <div class="section-content" id="modalAbout">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">Former Use</h3>
+                    <div class="section-content" id="modalFormer">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">What Happens Here</h3>
+                    <div class="section-content" id="modalActivities">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">Notable Projects</h3>
+                    <div class="section-content" id="modalProjects">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </div>
+                </div>
+
+                <a href="#" class="link-btn" id="modalLink" target="_blank">Visit Website →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Factory data structure (you'll fill this in later)
+        const factoriesData = {
+            1: {
+                name: 'La Central del Circ',
+                type: 'Circus Arts',
+                location: 'Sant Marti',
+                year: '2008',
+                about: 'This space offers circus professionals a place to safely practice their craft. It includes rehearsal rooms, a multi-purpose room, a materials workshop, performance space, meeting space, and more.',
+                former: 'Previously hosted the Inhabiting the World Exhibition',
+                activities: 'Creation, physical training, workshops, rehearsals',
+                projects: 'International residencies',
+                website: 'https://lacentraldelcirc.cat/'
+            },
+            2: {
+                name: 'La Escocesa',
+                type: 'Visual Arts',
+                location: 'Sant Martí',
+                year: '2008',
+                about: 'This space welcomes visual artists, at various stages of production, to work through their creative process. It emphasizes creative freedom and repurposing analogue technology. It includes visual arts workshop and exhbition rooms, materials workshops, meeting spaces, and more.',
+                former: 'Previously used by a textile factory for Johnston, Shields & Cia',
+                activities: 'Analogue creation, development of community projects, training courses, materials for rent',
+                projects: 'La Canibal, Match, perpetracions, ENTREteixides, and more',
+                website: 'https://www.laescocesa.org/en'
+            },
+            3: {
+                name: 'Graner',
+                type: 'Performing Arts & Dance',
+                location: 'Sants-Montjuïc',
+                year: '2004',
+                about: 'Graner is an old factory complex that hosts body and movement-based creation. It is primarily used for performing arts and dance. It allows for a space for artists to rehearse, train, and perform collaboratively and flexibly.',
+                former: 'Located in a part of the old Philips lightbulb factory, operating as a lightbulb drying warehouse',
+                activities: 'Rehearsals, residencies, family activities, community projects, seminars, spaces for hire',
+                projects: 'Artistic mentorships, "Diving", Live Montjuic, and more',
+                website: 'https://granerbcn.cat/'
+            },
+            4: {
+                name: 'Fabra i Coats: Fàbrica de Creació',
+                type: 'Multidisciplinary',
+                location: 'Sant Andreu',
+                year: '2008',
+                about: 'This space is used for a large variety of creative work, from performing arts to music to visual arts. The goal of the facility is to create work spaces for artists of various disciplines, as well as providing training and support/visibility for artists. This space includes rehearsal rooms, workshop rooms, a performance room, coworking spaces, meeting spaces, and more.',
+                former: 'Located in a 19th century textile and threads factory, part of the old Sant Andre del Palomar municipality. ',
+                activities: 'Training courses, rehearsals, workshops, research, family activities, open days, shows',
+                projects: '"A Sense of Wonder", "Raw Material", Feedback Festival dance performances, and more',
+                website: 'https://www.barcelona.cat/fabraicoats/ca'
+            },
+            5: {
+                name: 'Hangar',
+                type: 'Visual & Multimedia Art',
+                location: 'Sant Martí',
+                year: '1997',
+                about: 'This space is a center for artistic creation and experimentation. It is open to artists of all different areas of the visual and multimedia arts, and focuses on providing artists with easier access to resources, spaces to work, and knowledge. It includes rehearsal rooms, a film set, material workshops, a classroom, workshop rooms, and more.',
+                former: 'Located in an industrial warehouse within the Can Ricart factory complex; formerly a textile factory building. ',
+                activities: 'Training courses, rehearsals, international programs, open days, hosting of organizations',
+                projects: '"A Sense of Wonder", "Raw Material", Feedback Festival dance performances, and more',
+                website: 'https://hangar.org/en/'
+            },
+            6: {
+                name: 'Tantarantana',
+                type: 'Performing Arts',
+                location: 'El Raval',
+                year: '1996',
+                about: 'Tantarantana is a performing arts center for theatrical creation and performance. Its purpose is not just to be a performance space, but also allow for the creation of new staged works. This space includes rehearsal rooms, exhibition rooms, meeting space, and more.',
+                former: 'Moved to its current space in 1996 after previously operating in El Born, starting in 1992. It is the second-oldest small-format venue in Barcelona. ',
+                activities: 'Training courses, residencies, open rehearsals, dramatic readings, exhibitions, educational visits',
+                projects: '"Goodbye Europe, Lost Words","Perfectament Imperfecta", "Big Fake" and more',
+                website: 'https://tantarantana.com/'
+            },
+            7: {
+                name: 'Ateneu Popular 9 Barris',
+                type: 'Circus',
+                location: 'Nou Barris',
+                year: '1977',
+                about: 'This space is a community-managed cultural center that offers circus training and performance, alongside other performing arts and community activities. It primarily serves artists working in the circus realm, encouraging community projects and collaboration. This space includes rehearsal rooms, vertical dance wall, training rooms, meeting spaces, workshops, and more.',
+                former: 'Housed in the warehouse of a former asphalt factory, built to supply the construction of entrance routes into Barcelona',
+                activities: 'Training courses, shows, residencies, spaces for rent, seminars, and more',
+                projects: '"Carnival". New Born Neighborhoods", "Risk Local I"',
+                website: 'https://ateneu9b.net/ca'
+            },
+            8: {
+                name: 'Sala Beckett',
+                type: 'Performing Arts',
+                location: 'Sant Martí',
+                year: '1989',
+                about: 'Sala Beckett is a performing arts center dedicated to theatrical creation and experimentation. It allows for playwrights, actors, and other creative professionals to meet and develop new theatrical works. This space includes rehearsal rooms, performance rooms, meeting spaces, coworking spaces, and more.',
+                former: 'Housed in the warehouse of a former asphalt factory, built to supply the construction of entrance routes into Barcelona',
+                activities: 'Training courses, exhibitions, shows, open rehearsals, dramatic readings, seminars, and more.',
+                projects: '"How I Learned to Drive", "One Cut, Two Thirds","Tenderness"',
+                website: 'https://www.salabeckett.cat/'
+            },
+            9: {
+                name: 'Nau Ivanow',
+                type: 'Performing Arts',
+                location: 'Sant Andreu',
+                year: '2010',
+                about: 'Nau Ivanow is a performing arts center that focuses on theatrical creation, residencies, and supporting artists through the development process. It promotes collaboration and the exchange of ideas, providing rehearsal and workshop space for theatrical companies. This space includes rehearsal rooms, a performance room, coworking space, meeting space, and more.',
+                former: 'Formerly the headquarters of Pintures Ivanow, and then occupied by a series of textiles companies.',
+                activities: 'Training, support for companies, residencies, space for rent, shows, open days, and more.',
+                projects: 'Lalinea, Segunda Juventud, Llum de Fideu, Urati Laboratory',
+                website: 'https://nauivanow.com/'
+            },
+            10: {
+                name: 'La Brossa - Centre de les Arts Lliures',
+                type: 'Visual Arts & Performing Arts',
+                location: 'Ciutat Vella',
+                year: '2011',
+                about: 'This space is a center for visual and performing arts, focusing on the crossover between artistic disciplines. This space highlights the work of the poet Joan Brossa, as well as paratheatrical performing arts. The space includes rehearsal rooms, performancce rooms, coworking spaces, meeting space, and more.',
+                former: 'Housed within a historic building that was previously a mint, an adobe workshop, a chemistry workshop, and a night club, at different points in time. ',
+                activities: 'Training courses, open rehearsals, workshops, shows, screenings, after-show talks, activities in collaboration with cultural entities.',
+                projects: '"Ens van caldre les úlceres", "La Serp Viva", "La invisibilitat del dau"',
+                website: 'https://fundaciojoanbrossa.cat/'
+            },
+            11: {
+                name: 'La Caldera',
+                type: 'Dance',
+                location: 'Les Corts',
+                year: '2015',
+                about: 'La Caldera is a center for artistic creation focused on dance and body movement. It focuses on supporting the creative process and providing a space for dialogue and collaboration. This space includes rehearsal rooms, a performance room, storage space, coworking space, a bar space, and more.',
+                former: 'Located in the building that used to house the old Renoir cinema',
+                activities: 'Residencies, WIP shows, professional training, activities for families, hosting of professional events, spaces for rent, and more.',
+                projects: 'Càpsules de creació en cru, Dansa Metropolitana, Festa Major Les Corst',
+                website: 'https://www.lacaldera.info/en/lacaldera'
+            },
+        };
+
+        // Page navigation
+        const mainContent = document.getElementById('mainContent');
+        const citationsPage = document.getElementById('citationsPage');
+        const overviewPage = document.getElementById('overviewPage');
+        const citationsLink = document.getElementById('citationsLink');
+        const overviewLink = document.getElementById('overviewLink');
+        const backBtn = document.getElementById('backBtn');
+        const backBtnOverview = document.getElementById('backBtnOverview');
+
+        citationsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            mainContent.style.display = 'none';
+            citationsPage.classList.add('active');
+            overviewPage.style.display = 'none';
+            window.scrollTo(0, 0);
+        });
+
+        overviewLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            mainContent.style.display = 'none';
+            citationsPage.classList.remove('active');
+            overviewPage.style.display = 'block';
+            window.scrollTo(0, 0);
+        });
+
+        backBtn.addEventListener('click', () => {
+            citationsPage.classList.remove('active');
+            mainContent.style.display = 'block';
+            window.scrollTo(0, 0);
+        });
+
+        backBtnOverview.addEventListener('click', () => {
+            overviewPage.style.display = 'none';
+            mainContent.style.display = 'block';
+            window.scrollTo(0, 0);
+        });
+
+        // Filter functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.factory-card');
+        const searchBar = document.querySelector('.search-bar');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                
+                cards.forEach(card => {
+                    if (filter === 'all' || card.dataset.type === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Search functionality
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('factoryModal');
+        const closeBtn = document.querySelector('.close-btn');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const factoryId = card.dataset.id;
+                const data = factoriesData[factoryId] || {
+                    name: card.querySelector('.factory-name').textContent,
+                    type: card.querySelector('.factory-type').textContent,
+                    location: card.querySelector('.factory-location').textContent,
+                    year: card.querySelector('.factory-year').textContent.replace('Opened: ', ''),
+                    about: card.querySelector('.factory-description').textContent,
+                    former: 'Information coming soon',
+                    activities: 'Information coming soon',
+                    projects: 'Information coming soon',
+                    website: '#'
+                };
+
+                document.getElementById('modalTitle').textContent = data.name;
+                document.getElementById('modalLocation').textContent = data.location;
+                document.getElementById('modalType').textContent = data.type;
+                document.getElementById('modalYear').textContent = data.year;
+                document.getElementById('modalAbout').textContent = data.about;
+                document.getElementById('modalFormer').textContent = data.former;
+                document.getElementById('modalActivities').textContent = data.activities;
+                document.getElementById('modalProjects').textContent = data.projects;
+                document.getElementById('modalLink').href = data.website;
+
+                modal.classList.add('active');
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Keyboard escape to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
